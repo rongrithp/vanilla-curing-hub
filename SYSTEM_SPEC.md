@@ -43,7 +43,7 @@
 - **แอปพลิเคชันฝั่งผู้ใช้และสมองกลประมวลผล (Client & Vision Brain):** Smartphone Application หรือ Web App ทำหน้าที่เป็น Dashboard แสดงผล บันทึกฐานข้อมูล และทำหน้าที่เป็น On-device Edge AI Engine:
   - **QR Code Batch & Tray Logging:** สแกน QR Code ประจำถาดเพื่อบันทึกค่าน้ำหนักจากเครื่องชั่งดิจิทัลภายนอก ($M_t \rightarrow 27\%$)
   - **OpenCV Engine:** คำนวณสัดส่วนสีผิวฝัก (Color / Brown Ratio) เพื่อประเมินความสุกและระดับการเปลี่ยนสี
-  - **Gemini Nano / On-device Multimodal LLM:** วิเคราะห์รอยตำหนิ และตรวจจับสปอร์เชื้อรา (Mold & Defect Detection) บนตัวฝักวานิลลาโดยตรงบนสมาร์ทโฟน
+- **รายละเอียดไดอะแกรมการไหลของข้อมูลแบบสมบูรณ์:** อ่านผังการทำงานและการแปลงสภาพข้อมูลละเอียดยิบได้ที่เอกสาร [DATA_PIPELINE.md](DATA_PIPELINE.md)
 
 ---
 
