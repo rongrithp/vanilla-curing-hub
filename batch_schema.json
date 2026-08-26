@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BatchTraceabilityAndSensoryRecord",
+  "description": "Comprehensive batch traceability, applied recipe, tray logs, and closed-loop sensory evaluation schema for Automated Vanilla Curing Hub.",
+  "type": "object",
+  "properties": {
+    "batch_id": {
+      "type": "string",
+      "example": "LOT-YYYYMMDD-TXX"
+    },
+    "initial_mass_g": {
+      "type": "number",
+      "default": 5000.0
+    },
+    "target_exit_mass_g": {
+      "type": "number",
+      "default": 1350.0
+    },
+    "start_timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "recipe_applied": {
+      "type": "object",
+      "properties": {
+        "sweat_temp_target": { "type": "number", "default": 48.0 },
+        "sweat_duration_hours": { "type": "number", "default": 36 },
+        "dry_temp_target": { "type": "number", "default": 36.5 },
+        "dry_vpd_target_kpa": { "type": "number", "default": 1.0 }
+      },
+      "required": ["sweat_temp_target", "sweat_duration_hours", "dry_temp_target", "dry_vpd_target_kpa"]
+    },
+    "tray_logs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": { "type": "string", "format": "date-time" },
+          "current_mass_g": { "type": "number" },
+          "mass_ratio_pct": { "type": "number" },
+          "photo_uri": { "type": "string" }
+        },
+        "required": ["timestamp", "current_mass_g", "mass_ratio_pct"]
+      }
+    },
+    "final_evaluation": {
+      "type": "object",
+      "properties": {
+        "vanillin_hplc_pct": { "type": "number" },
+        "sensory_radar": {
+          "type": "object",
+          "properties": {
+            "sweetness": { "type": "number", "minimum": 0, "maximum": 10 },
+            "creamy": { "type": "number", "minimum": 0, "maximum": 10 },
+            "floral": { "type": "number", "minimum": 0, "maximum": 10 },
+            "woody": { "type": "number", "minimum": 0, "maximum": 10 },
+            "defect_off_flavor": { "type": "number", "minimum": 0, "maximum": 10 }
+          },
+          "required": ["sweetness", "creamy", "floral", "woody", "defect_off_flavor"]
+        }
+      },
+      "required": ["vanillin_hplc_pct", "sensory_radar"]
+    }
+  },
+  "required": ["batch_id", "initial_mass_g", "target_exit_mass_g", "recipe_applied"]
+}

@@ -3,7 +3,7 @@
 ## 1. ขอบเขตและข้อจำกัดของระบบ (System Boundary & Scope)
 - **ขนาดความจุเป้าหมาย (Target Capacity):** ฝักวานิลลาสด 5.0 kg (~250–350 ฝัก)
 - **สถาปัตยกรรมทางกายภาพ (Physical Architecture):** 
-  - ภายในตู้: ถาดตะแกรงซ้อนกัน 3–4 ชั้น (Multi-tier Mesh Trays) พร้อมระบบหมุนเวียนลมร้อนแบบบังคับทิศทาง (Forced Convection)
+  - ภายในตู้: ถาดตะแกรงซ้อนกัน 4 ชั้น (Mesh Trays ขนาด $30 \times 40\text{ cm}$, พื้นที่รวม $\ge 0.40\text{ m}^2$) พร้อมระบบหมุนเวียนลมร้อนแบบบังคับทิศทาง (Forced Convection)
   - กระบวนการตรวจสอบ (Smartphone-Centric Workflow): ใช้กล้องสมาร์ทโฟนถ่ายภาพมาโครประจำวัน (Daily Macro Snapshots) ควบคู่กับการประมวลผลด้วย On-device Edge AI Inference โดยไม่ต้องใช้แท่นถ่ายภาพแยก
 - **ขอบเขตกระบวนการอัตโนมัติ (Automated Chamber Scope):** ระบบตู้บ่มอัตโนมัติรองรับและควบคุมสภาพแวดล้อมตั้งแต่มวลสดเข้าตู้จนจบช่วง active chamber lifecycle ได้แก่ **STATE_0 (Pre-Kill & Sizing)**, **STATE_1 (Sweating)** ถึง **STATE_2 (Slow Drying)**
 - **การย้ายกระบวนการบ่มนอกตู้ (Off-Chamber Conditioning):** ขั้นตอน **STATE_3 (Conditioning)** ถูก Offload ไปยังกล่องไม้ภายนอก (Manual/Off-chamber Storage) เพื่อคืนพื้นที่ภายในตู้ (Free up chamber throughput) ทำให้ตู้พร้อมเริ่มรองรับแบทช์ใหม่ได้ทันที
@@ -110,7 +110,33 @@ $$\text{VPD}(T_{\text{air}}, \text{RH}_{\text{air}}) = 0.61078 \times \exp\left(
 
 ---
 
-## 6. เกณฑ์การยอมรับเพื่อส่งมอบงาน (Acceptance Criteria)
+## 6. สถาปัตยกรรมแบบแยกส่วนและการเพิ่มประสิทธิภาพด้วยผลสัมผัส (Decoupled Architecture & Closed-Loop Sensory Optimization)
+
+### 6.1 ภาพรวมสถาปัตยกรรม 3 ชั้น (Three-Layer Decoupled Architecture)
+1. **Chamber Hardware Pod (ESP32):** ทำหน้าที่เป็น Reliable Actuator ควบคุมสภาวะแวดล้อม Closed-loop $T, \text{RH}, \text{VPD}$ ตาม Recipe ($T, \text{VPD}, \text{Time}$) โดยปราศจากกล้องในตัวตู้เพื่อความทนทานสูงสุด
+2. **Batch Traceability Layer (Mobile/Web):** ติดตามฝักระดับถาดผ่านระบบ **QR Code Tracking** บันทึกการเปลี่ยนแปลงน้ำหนัก ($M_t \rightarrow 27\%$) และภาพถ่าย (Color & Texture Analysis)
+3. **Sensory & Optimization Engine:** เชื่อมโยงผลวิเคราะห์คุณภาพขั้นสุดท้าย (% Vanillin HPLC และ Sensory Cupping Radar Score) ป้อนกลับ (Feedback Loop) เข้าสมการเพื่อปรับปรุงและ Optimize ค่า Recipe ($T, \text{VPD}, \text{Time}$) สำหรับแบทช์ถัดไป
+
+### 6.2 สเปกอุปกรณ์และผลผลิตเป้าหมาย (Hardware & Prototype Parameters)
+- **ความจุเป้าหมาย:** ฝักสด 5.0 kg (~250–350 ฝัก) เหมาะสมกับสวนวานิลลาขนาด 1 งาน (ผลผลิตรวม ~200–250 kg/ปี ทยอยออก 12 สัปดาห์)
+- **กายภาพถาดบ่ม:** ถาดตะแกรง Mesh Tray ขนาด $30 \times 40\text{ cm}$ จำนวน 4 ชั้น (พื้นที่รวม $\ge 0.40\text{ m}^2$)
+- **Dual-Stage Profile (ตู้บ่มเดี่ยว):**
+  - **Stage 1 (Sweating):** ระยะเวลา 24–48 ชม., อุณหภูมิ $T_{\text{air}} = 45^\circ\text{C} - 50^\circ\text{C}$, ปิด Vent สนิท ($\text{RH} > 85\%$), $\text{VPD} \approx 0.3 - 0.5\text{ kPa}$
+  - **Stage 2 (Slow Drying):** ระยะเวลา 10–14 วัน, อุณหภูมิ $T_{\text{air}} = 35^\circ\text{C} - 38^\circ\text{C}$, ปรับ Vent ควบคุมสมดุล $\text{VPD} \approx 1.0\text{ kPa}$
+  - **Exit Condition:** อัตราส่วนมวลคงเหลือแตะ $27.0\%$ ($M_{\text{exit}} = 1.35\text{ kg}$)
+
+### 6.3 โครงสร้างการประเมินผลสัมผัส (Sensory Evaluation Metrics)
+- **% Vanillin Content (HPLC):** Target $\ge 2.0\%$
+- **Sensory Radar Attributes (Scale 0.0 - 10.0):**
+  - `sweetness` (ความหวานกลมกล่อม)
+  - `creamy` (ความหอมมันแบบครีม)
+  - `floral` (ความหอมดอกไม้)
+  - `woody` (ความหอมไม้แบบวานิลลาบ่ม)
+  - `defect_off_flavor` (กลิ่นแปลกปลอม/กลิ่นอับ ต้อง $\le 1.0$)
+
+---
+
+## 7. เกณฑ์การยอมรับเพื่อส่งมอบงาน (Acceptance Criteria)
 1. **Zero-Deadlock Telemetry:** ฐานข้อมูล SQLite ต้องรองรับการเขียนข้อมูลเซนเซอร์ทุก 5 วินาทีได้อย่างต่อเนื่องโดยไม่เกิด Database Lock
 2. **Thermal Safety Guard:** ระบบ Hardware Watchdog ต้องตัดการทำงานของฮีตเตอร์ทันทีเมื่ออุณหภูมิเกิน $58^\circ\text{C}$
 3. **Loss-of-Mass Release & Chamber Throughput:** เมื่อค่าน้ำหนักรวมลดลงถึงเกณฑ์เป้าหมาย $27.0\% \pm 1.0\%$ จากโหลดเซลล์ ระบบตู้บ่มจะสิ้นสุด active lifecycle และเปลี่ยนสถานะตู้เป็น `READY_FOR_NEXT_BATCH` เพื่อปลดล็อกตู้สำหรับแบทช์ถัดไป และย้ายฝักไปบ่มต่อภายนอก (Off-Chamber Conditioning)

@@ -16,10 +16,17 @@ def init_db():
         batch_id TEXT PRIMARY KEY,
         species TEXT,
         initial_mass_g REAL,
+        target_exit_mass_g REAL DEFAULT 1350.0,
         start_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
         current_state TEXT
     );
     """)
+
+    # Ensure target_exit_mass_g column exists if table was previously created
+    try:
+        cursor.execute("ALTER TABLE batch_metadata ADD COLUMN target_exit_mass_g REAL DEFAULT 1350.0;")
+    except sqlite3.OperationalError:
+        pass
 
     # Table: sensor_telemetry
     cursor.execute("""
@@ -50,9 +57,25 @@ def init_db():
     );
     """)
 
+    # Table: sensory_evaluations (Closed-Loop Optimization Feedback)
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS sensory_evaluations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        batch_id TEXT,
+        vanillin_hplc_pct REAL,
+        sweetness REAL,
+        creamy REAL,
+        floral REAL,
+        woody REAL,
+        defect_off_flavor REAL,
+        eval_timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (batch_id) REFERENCES batch_metadata (batch_id) ON DELETE CASCADE
+    );
+    """)
+
     conn.commit()
     conn.close()
-    print(f"Database '{DB_NAME}' initialized successfully with WAL mode.")
+    print(f"Database '{DB_NAME}' initialized successfully with WAL mode and sensory_evaluations schema.")
 
 if __name__ == "__main__":
     init_db()
