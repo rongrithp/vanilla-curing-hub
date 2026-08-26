@@ -9,20 +9,25 @@
 | อุปกรณ์ (Component) | สเปกทางเทคนิค (Technical Specification) | จำนวน (Qty) | หน่วย (Unit) | วัตถุประสงค์และการใช้งาน (Purpose) |
 |---|---|---|---|---|
 | **ESP32 Development Board** | 38 Pins, Dual-Core 240MHz, Wi-Fi & BLE Dual-Mode | 1 | บอร์ด | ประมวลผล FSM Loop, อ่านค่าเซนเซอร์, ควบคุม Actuator และสื่อสารข้อมูล |
-| **OLED Display 0.96"** | Resolution 128x64 pixels, I2C Interface (Address 0x3C) | 1 | จอ | แสดงผลข้อมูลอุณหภูมิ, RH, VPD, % Mass และสถานะตู้แบบ Real-time |
+| **OLED Display 0.96"** | Resolution 128x64 pixels, I2C Interface (Address 0x3C) | 1 | จอ | แสดงผลข้อมูลอุณหภูมิ, RH, VPD และสถานะตู้แบบ Real-time |
 
 ---
 
-## 2. เซนเซอร์ตรวจวัด (Sensing Layer)
+## 2. เซนเซอร์ตรวจวัดภายในตู้ (In-Chamber Sensing Layer)
 | อุปกรณ์ (Component) | สเปกทางเทคนิค (Technical Specification) | จำนวน (Qty) | หน่วย (Unit) | วัตถุประสงค์และการใช้งาน (Purpose) |
 |---|---|---|---|---|
-| **SHT31 Sensor Module** | High Accuracy Temp (±0.2°C) & RH (±2%), I2C Interface | 1 | ตัว | ตรวจวัดอุณหภูมิและความชื้นสัมพัทธ์ในตู้บ่มเพื่อคำนวณค่า VPD |
-| **Single-Point Load Cell 10kg** | Maximum Capacity 10.0 kg, Precision Strain Gauge | 1 | ชุด | ตรวจวัดค่าน้ำหนักรวมของแบทช์สดเพื่อคำนวณอัตราส่วนมวลคงเหลือ ($M_t \rightarrow 27\%$) |
-| **HX711 ADC Module** | 24-bit Analog-to-Digital Converter for Load Cells | 1 | โมดูล | แปลงสัญญาณอนาล็อกจาก Load Cell เป็นข้อมูลดิจิทัลส่งให้ ESP32 |
+| **SHT31 Sensor Module** | High Accuracy Temp (±0.2°C) & RH (±2%), I2C Interface | 1 | ตัว | ตรวจวัดอุณหภูมิและความชื้นสัมพัทธ์ในตู้บ่มเพื่อคำนวณค่า VPD สัมพัทธ์แบบ Closed-Loop |
 
 ---
 
-## 3. ระบบทำความร้อนและการขับเคลื่อน (Thermal & Actuation Layer)
+## 3. อุปกรณ์ชั่งน้ำหนักภายนอก (External Weight Tracking & QR Logging)
+| อุปกรณ์ (Component) | สเปกทางเทคนิค (Technical Specification) | จำนวน (Qty) | หน่วย (Unit) | วัตถุประสงค์และการใช้งาน (Purpose) |
+|---|---|---|---|---|
+| **External Digital Bench/Kitchen Scale** | Precision 0.1g / 1g Resolution, Max Capacity 10.0 kg | 1 | เครื่อง | เครื่องชั่งน้ำหนักดิจิทัลภายนอก ชั่งน้ำหนักถาดฝักวานิลลาสดก่อนเข้าตู้และสแกน QR Code บันทึกลงแอปพลิเคชัน (ตัดปัญหา Sensor Drift จากอุณหภูมิและความชื้นสะสมภายในตู้) |
+
+---
+
+## 4. ระบบทำความร้อนและการขับเคลื่อน (Thermal & Actuation Layer)
 | อุปกรณ์ (Component) | สเปกทางเทคนิค (Technical Specification) | จำนวน (Qty) | หน่วย (Unit) | วัตถุประสงค์และการใช้งาน (Purpose) |
 |---|---|---|---|---|
 | **PTC Heating Element** | 200W 12V/220V Constant Temperature PTC Air Heater | 1 | ชิ้น | ให้ความร้อนภายในตู้บ่มสำหรับเฟส Sweating (45-50°C) และ Slow Drying (35-38°C) |
@@ -32,7 +37,7 @@
 
 ---
 
-## 4. ระบบจ่ายไฟและป้องกันวงจร (Power & Electrical Protection)
+## 5. ระบบจ่ายไฟและป้องกันวงจร (Power & Electrical Protection)
 | อุปกรณ์ (Component) | สเปกทางเทคนิค (Technical Specification) | จำนวน (Qty) | หน่วย (Unit) | วัตถุประสงค์และการใช้งาน (Purpose) |
 |---|---|---|---|---|
 | **Switching Power Supply 12V** | Output 12V DC 5A (60W), AC 110/220V Input | 1 | ตัว | จ่ายพลังงานไฟฟ้ากระแสตรง 12V ให้บอร์ด, เซอร์โว, พัดลม และอุปกรณ์ควบคุม |
@@ -41,7 +46,7 @@
 
 ---
 
-## 5. โครงสร้างตู้และกลไก (Chamber & Mechanical Structure)
+## 6. โครงสร้างตู้และกลไก (Chamber & Mechanical Structure)
 | อุปกรณ์ (Component) | สเปกทางเทคนิค (Technical Specification) | จำนวน (Qty) | หน่วย (Unit) | วัตถุประสงค์และการใช้งาน (Purpose) |
 |---|---|---|---|---|
 | **Insulated Chamber Enclosure** | ความจุ ~78 Liters, ผนังบุฉนวนกันความร้อน (PU / EPS Foam) | 1 | ตู้ | หุ้มห่อกักเก็บความร้อนและความชื้น ป้องกันความร้อนสูญเสียสู่ภายนอก |
