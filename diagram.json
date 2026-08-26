@@ -4,13 +4,14 @@
   "editor": "wokwi",
   "parts": [
     { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 0, "left": 0, "attrs": {} },
-    { "type": "board-ssd1306", "id": "oled", "top": -140, "left": 120, "attrs": {} },
-    { "type": "wokwi-sht31", "id": "sht31", "top": -140, "left": -20, "attrs": {} },
-    { "type": "wokwi-servo", "id": "servo1", "top": -140, "left": -160, "attrs": {} },
-    { "type": "wokwi-led", "id": "led_heater", "top": 160, "left": 80, "attrs": { "color": "red", "label": "PTC Heater SSR" } },
-    { "type": "wokwi-led", "id": "led_fan", "top": 160, "left": 180, "attrs": { "color": "green", "label": "Circulating Fan" } },
-    { "type": "wokwi-resistor", "id": "r1", "top": 120, "left": 80, "attrs": { "value": "220" } },
-    { "type": "wokwi-resistor", "id": "r2", "top": 120, "left": 180, "attrs": { "value": "220" } }
+    { "type": "board-ssd1306", "id": "oled", "top": -160, "left": 140, "attrs": {} },
+    { "type": "wokwi-sht31", "id": "sht31", "top": -160, "left": -20, "attrs": {} },
+    { "type": "wokwi-dht22", "id": "dht22", "top": -160, "left": -140, "attrs": {} },
+    { "type": "wokwi-servo", "id": "servo1", "top": -160, "left": -260, "attrs": {} },
+    { "type": "wokwi-led", "id": "led_heater", "top": 180, "left": 60, "attrs": { "color": "red", "label": "PTC Heater SSR" } },
+    { "type": "wokwi-led", "id": "led_fan", "top": 180, "left": 160, "attrs": { "color": "green", "label": "Circulating Fan" } },
+    { "type": "wokwi-resistor", "id": "r1", "top": 130, "left": 60, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r2", "top": 130, "left": 160, "attrs": { "value": "220" } }
   ],
   "connections": [
     [ "esp:GND.1", "oled:GND", "black", [ "v0" ] ],
@@ -22,6 +23,10 @@
     [ "esp:3V3", "sht31:VCC", "red", [ "v0" ] ],
     [ "esp:21", "sht31:SDA", "blue", [ "v0" ] ],
     [ "esp:22", "sht31:SCL", "yellow", [ "v0" ] ],
+
+    [ "esp:GND.1", "dht22:GND", "black", [ "v0" ] ],
+    [ "esp:3V3", "dht22:VCC", "red", [ "v0" ] ],
+    [ "esp:4", "dht22:SDA", "green", [ "v0" ] ],
 
     [ "esp:GND.1", "servo1:GND", "black", [ "v0" ] ],
     [ "esp:5V", "servo1:V+", "red", [ "v0" ] ],
