@@ -89,7 +89,28 @@
 
 ---
 
-## 5. เกณฑ์การยอมรับเพื่อส่งมอบงาน (Acceptance Criteria)
+## 5. โมเดลการควบคุม VPD แบบแยกส่วนและลูปซ้อนทับ (Decoupled VPD & Cascaded Mass Control)
+
+### 5.1 สูตรการคำนวณ Vapor Pressure Deficit (Tetens Formula)
+ความดันไอน้ำส่วนขาด (VPD) คำนวณแบบ Real-time จากอุณหภูมิอากาศ ($T_{\text{air}}$) และความชื้นสัมพัทธ์ ($\text{RH}_{\text{air}}$) โดยใช้สมการ Tetens Equation:
+$$\text{VPD}(T_{\text{air}}, \text{RH}_{\text{air}}) = 0.61078 \times \exp\left(\frac{17.27 \times T_{\text{air}}}{T_{\text{air}} + 237.3}\right) \times \left(1 - \frac{\text{RH}_{\text{air}}}{100}\right) \quad [\text{kPa}]$$
+
+### 5.2 สถาปัตยกรรมลูปควบคุมซ้อนทับ (Cascaded Dual-Loop Control Scheme)
+- **Outer Loop (Supervisory Control):** ควบคุมและติดตามอัตราส่วนการสูญเสียมวลรวม (Mass Ratio Target = 27.0% จาก Load Cell HX711) เมื่อถึงเป้าหมายตู้จะสิ้นสุด Active Chamber Lifecycle
+- **Inner Loop (Process Control):** ควบคุมและรักษาสมดุลแรงดันไอน้ำส่วนขาด (VPD Target $\approx 1.0\text{ kPa}$ ในช่วง Slow Drying) ผ่านการปรับตำแหน่งช่องระบายอากาศ (Exhaust Vent) ร่วมกับการชดเชยอุณหภูมิจาก PTC Heater
+
+### 5.3 ลำดับความสำคัญในการสั่งการอุปกรณ์ (Decoupled Actuator Priority Matrix)
+1. **Circulating Fan (พัดลมหมุนเวียน):** ทำงานในโหมด Constant Airflow หมุนเวียนอากาศต่อเนื่องตลอดกระบวนบ่ม เพื่อรักษาการกระจายความร้อนและป้องกันจุดอับอากาศ (Dead zones)
+2. **PTC Heater (ฮีตเตอร์):** ทำหน้าที่ Dedicated Temperature Control ควบคุมอุณหภูมิให้อยู่ในกรอบเป้าหมาย ($45^\circ\text{C}-50^\circ\text{C}$ สำหรับ Sweating และ $35^\circ\text{C}-38^\circ\text{C}$ สำหรับ Slow Drying)
+3. **Exhaust Vent (ช่องระบายอากาศ):** ทำหน้าที่ Closed-loop VPD Modulation ปรับมุมเปิด-ปิดแบบ Stepwise มีช่วง Hysteresis Deadband $[0.9, 1.1]\text{ kPa}$ ประเมินผลรอบละ 30–60 วินาที
+
+### 5.4 ระบบความปลอดภัยและขีดจำกัดวิกฤต (Fallback Safety Thresholds)
+- **Hard Over-Temperature Cutoff:** ตัดไฟ PTC Heater ทันทีผ่าน Hardware/Software Relay เมื่ออุณหภูมิสูงกว่า $58.0^\circ\text{C}$
+- **Sensor Failsafe:** หากเซนเซอร์ SHT31 หรือ Load Cell ขัดข้อง/ไม่สามารถอ่านค่าได้ ระบบจะตัดการทำงานของฮีตเตอร์ สั่งเปิดพัดลมระบายสูงสุด และแจ้งเตือนสถานะฉุกเฉิน
+
+---
+
+## 6. เกณฑ์การยอมรับเพื่อส่งมอบงาน (Acceptance Criteria)
 1. **Zero-Deadlock Telemetry:** ฐานข้อมูล SQLite ต้องรองรับการเขียนข้อมูลเซนเซอร์ทุก 5 วินาทีได้อย่างต่อเนื่องโดยไม่เกิด Database Lock
 2. **Thermal Safety Guard:** ระบบ Hardware Watchdog ต้องตัดการทำงานของฮีตเตอร์ทันทีเมื่ออุณหภูมิเกิน $58^\circ\text{C}$
 3. **Loss-of-Mass Release & Chamber Throughput:** เมื่อค่าน้ำหนักรวมลดลงถึงเกณฑ์เป้าหมาย $27.0\% \pm 1.0\%$ จากโหลดเซลล์ ระบบตู้บ่มจะสิ้นสุด active lifecycle และเปลี่ยนสถานะตู้เป็น `READY_FOR_NEXT_BATCH` เพื่อปลดล็อกตู้สำหรับแบทช์ถัดไป และย้ายฝักไปบ่มต่อภายนอก (Off-Chamber Conditioning)
