@@ -3,6 +3,10 @@
  * @brief Automated Vanilla Curing Hub - ESP32 Firmware Controller
  * @details Implements non-blocking sensor polling, Tetens VPD computation,
  *          decoupled actuator control loop, local display HMI, and hardware safety watchdog.
+ *
+ * HOW TO RUN SIMULATION IN WOKWI:
+ * 1. VS Code: Install "Wokwi Simulator" extension -> Open project folder -> Press F1 -> Select "Wokwi: Start Simulator"
+ * 2. Web Browser: Go to https://wokwi.com -> Upload esp32_curing_controller.ino & diagram.json
  */
 
 #include <Arduino.h>
@@ -14,7 +18,7 @@
 #include <Adafruit_SSD1306.h>
 #include <HX711.h>
 
-// Pin Definitions for ESP32
+// Pin Definitions for ESP32 & Wokwi Simulator
 #define SHT31_I2C_ADDR      0x44
 #define OLED_I2C_ADDR       0x3C
 #define OLED_SCREEN_WIDTH   128
@@ -23,10 +27,10 @@
 #define PIN_HX711_DOUT      16
 #define PIN_HX711_SCK       17
 
-#define PIN_RELAY_HEATER    25
-#define PIN_RELAY_FAN       26
-#define PIN_SERVO_VENT      27
-#define PIN_STATUS_LED      2
+#define PIN_RELAY_HEATER    19  // Wokwi Red LED (PTC Heater SSR)
+#define PIN_RELAY_FAN       23  // Wokwi Green LED (Circulating Fan)
+#define PIN_SERVO_VENT      18  // Wokwi Servo Motor (Exhaust Vent)
+#define PIN_STATUS_LED      2   // ESP32 Onboard Status LED
 
 // Safety & Target Thresholds
 #define HARD_TEMP_CUTOFF    58.0f // °C Emergency cutoff threshold

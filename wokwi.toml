@@ -1,0 +1,4 @@
+[wokwi]
+version = 1
+firmware = "firmware/esp32_curing_controller.ino"
+diagram = "diagram.json"
