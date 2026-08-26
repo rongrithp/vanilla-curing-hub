@@ -1,44 +1,37 @@
 {
   "version": 1,
-  "author": "Antigravity AI",
+  "author": "System Architect",
   "editor": "wokwi",
   "parts": [
-    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 0, "left": 0, "attrs": {} },
-    { "type": "board-ssd1306", "id": "oled", "top": -160, "left": 140, "attrs": {} },
-    { "type": "wokwi-sht31", "id": "sht31", "top": -160, "left": -20, "attrs": {} },
-    { "type": "wokwi-dht22", "id": "dht22", "top": -160, "left": -140, "attrs": {} },
-    { "type": "wokwi-servo", "id": "servo1", "top": -160, "left": -260, "attrs": {} },
-    { "type": "wokwi-led", "id": "led_heater", "top": 180, "left": 60, "attrs": { "color": "red", "label": "PTC Heater SSR" } },
-    { "type": "wokwi-led", "id": "led_fan", "top": 180, "left": 160, "attrs": { "color": "green", "label": "Circulating Fan" } },
-    { "type": "wokwi-resistor", "id": "r1", "top": 130, "left": 60, "attrs": { "value": "220" } },
-    { "type": "wokwi-resistor", "id": "r2", "top": 130, "left": 160, "attrs": { "value": "220" } }
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 100, "left": 50, "attrs": {} },
+    { "type": "board-ssd1306", "id": "oled", "top": -80, "left": 220, "attrs": { "i2cAddress": "0x3c" } },
+    { "type": "wokwi-dht22", "id": "dht", "top": -80, "left": -50, "attrs": {} },
+    { "type": "wokwi-servo", "id": "servo", "top": 120, "left": 320, "attrs": {} },
+    { "type": "wokwi-led", "id": "led_heater", "top": 280, "left": 180, "attrs": { "color": "red", "label": "PTC Heater SSR" } },
+    { "type": "wokwi-resistor", "id": "r1", "top": 285, "left": 120, "attrs": { "value": "220" } },
+    { "type": "wokwi-led", "id": "led_fan", "top": 280, "left": 280, "attrs": { "color": "green", "label": "Circulating Fan" } },
+    { "type": "wokwi-resistor", "id": "r2", "top": 285, "left": 220, "attrs": { "value": "220" } }
   ],
   "connections": [
     [ "esp:GND.1", "oled:GND", "black", [ "v0" ] ],
     [ "esp:3V3", "oled:VCC", "red", [ "v0" ] ],
+    [ "esp:22", "oled:SCL", "gold", [ "v0" ] ],
     [ "esp:21", "oled:SDA", "blue", [ "v0" ] ],
-    [ "esp:22", "oled:SCL", "yellow", [ "v0" ] ],
 
-    [ "esp:GND.1", "sht31:GND", "black", [ "v0" ] ],
-    [ "esp:3V3", "sht31:VCC", "red", [ "v0" ] ],
-    [ "esp:21", "sht31:SDA", "blue", [ "v0" ] ],
-    [ "esp:22", "sht31:SCL", "yellow", [ "v0" ] ],
+    [ "esp:GND.1", "dht:GND", "black", [ "v0" ] ],
+    [ "esp:3V3", "dht:VCC", "red", [ "v0" ] ],
+    [ "esp:4", "dht:SDA", "green", [ "v0" ] ],
 
-    [ "esp:GND.1", "dht22:GND", "black", [ "v0" ] ],
-    [ "esp:3V3", "dht22:VCC", "red", [ "v0" ] ],
-    [ "esp:4", "dht22:SDA", "green", [ "v0" ] ],
-
-    [ "esp:GND.1", "servo1:GND", "black", [ "v0" ] ],
-    [ "esp:5V", "servo1:V+", "red", [ "v0" ] ],
-    [ "esp:18", "servo1:PWM", "orange", [ "v0" ] ],
+    [ "esp:GND.2", "servo:GND", "black", [ "v0" ] ],
+    [ "esp:VIN", "servo:V+", "red", [ "v0" ] ],
+    [ "esp:18", "servo:PWM", "orange", [ "v0" ] ],
 
     [ "esp:19", "r1:1", "red", [ "v0" ] ],
     [ "r1:2", "led_heater:A", "red", [ "v0" ] ],
-    [ "esp:GND.1", "led_heater:C", "black", [ "v0" ] ],
+    [ "esp:GND.2", "led_heater:C", "black", [ "v0" ] ],
 
     [ "esp:23", "r2:1", "green", [ "v0" ] ],
     [ "r2:2", "led_fan:A", "green", [ "v0" ] ],
-    [ "esp:GND.1", "led_fan:C", "black", [ "v0" ] ]
-  ],
-  "dependencies": {}
+    [ "esp:GND.2", "led_fan:C", "black", [ "v0" ] ]
+  ]
 }
