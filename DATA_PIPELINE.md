@@ -8,8 +8,10 @@
 ## 1. ผังการไหลของข้อมูลภาพรวมระบบ (End-to-End System Architecture Flowchart)
 
 ```mermaid
-%%{init: { 'themeVariables': { 'fontSize': '18px', 'fontFamily': 'sans-serif' } } }%%
+%%{init: { 'themeVariables': { 'fontSize': '24px', 'fontFamily': 'sans-serif', 'nodePadding': 20 } } }%%
 graph TD
+    classDef default font-size:22px,font-weight:bold,stroke-width:2px;
+
     %% Layer 1: Hardware Chamber Pod
     subgraph Hardware_Layer["1. Hardware Chamber Layer (ESP32 Pod)"]
         SHT31["SHT31 Sensor<br/>(Temp & RH)"] -->|I2C Read| ESP32["ESP32 Controller<br/>(FSM Loop)"]
@@ -50,7 +52,7 @@ graph TD
 ## 2. ลำดับการทำงานของข้อมูลแบบละเอียดยิบ (End-to-End Sequence Diagram)
 
 ```mermaid
-%%{init: { 'sequence': { 'actorFontSize': 20, 'messageFontSize': 18, 'noteFontSize': 18, 'labelFontSize': 18, 'boxTextMargin': 12 }, 'themeVariables': { 'fontSize': '18px', 'fontFamily': 'sans-serif' } } }%%
+%%{init: { 'sequence': { 'actorFontSize': 24, 'messageFontSize': 22, 'noteFontSize': 22, 'labelFontSize': 22, 'boxTextMargin': 15, 'noteMargin': 15 }, 'themeVariables': { 'fontSize': '24px', 'fontFamily': 'sans-serif' } } }%%
 sequenceDiagram
     autonumber
     actor Operator as ผู้ใช้งาน<br/>(Operator)
@@ -65,7 +67,7 @@ sequenceDiagram
         note over ESP32, DB: 1. Hardware Closed-Loop Control & Telemetry Stream
         ESP32->>ESP32: อ่านค่า SHT31 (Temp, RH)<br/>และคำนวณ VPD (Tetens Equation)
         ESP32->>ESP32: ปรับตำแหน่ง Servo Vent (Deadband 0.9-1.1 kPa)<br/>และควบคุม PTC Heater
-        ESP32->>DB: บันทึก Time-Series Telemetry (ทุก 5 วินาที)
+        ESP32->>DB: บันทึก Time-Series Telemetry<br/>(ทุก 5 วินาที)
     end
 
     rect rgb(255, 250, 240)
@@ -73,7 +75,7 @@ sequenceDiagram
         Operator->>Scale: ชั่งน้ำหนักถาดฝักวานิลลาสด (g)
         Operator->>Phone: สแกน QR Code หน้าถาด<br/>+ ถ่ายภาพมาโคร
         Phone->>EdgeAI: ส่งภาพวิเคราะห์ด้วย OpenCV (Brown Ratio)<br/>+ Gemini Nano (Mold Check)
-        EdgeAI-->>Phone: คืนค่า Brown Ratio % และสถานะสปอร์เชื้อรา
+        EdgeAI-->>Phone: คืนค่า Brown Ratio %<br/>และสถานะสปอร์เชื้อรา
         Phone->>DB: บันทึกข้อมูลถาด (น้ำหนัก Mt,<br/>Brown Ratio %, URIs ภาพถ่าย)
     end
 
