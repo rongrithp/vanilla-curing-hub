@@ -8,27 +8,28 @@
 ## 1. ผังการไหลของข้อมูลภาพรวมระบบ (End-to-End System Architecture Flowchart)
 
 ```mermaid
+%%{init: { 'themeVariables': { 'fontSize': '18px', 'fontFamily': 'sans-serif' } } }%%
 graph TD
     %% Layer 1: Hardware Chamber Pod
     subgraph Hardware_Layer["1. Hardware Chamber Layer (ESP32 Pod)"]
-        SHT31["SHT31 Sensor (Temp & RH)"] -->|I2C Read| ESP32["ESP32 Controller (FSM Loop)"]
-        ESP32 -->|Tetens Formula| VPD_Calc["VPD Computation (kPa)"]
-        VPD_Calc -->|Closed-Loop Feedback| Actuators["Actuators (PTC Heater, Fan, Servo Vent)"]
-        ESP32 -->|BLE / Serial Stream| Telemetry_Stream["Telemetry Stream (JSON)"]
+        SHT31["SHT31 Sensor<br/>(Temp & RH)"] -->|I2C Read| ESP32["ESP32 Controller<br/>(FSM Loop)"]
+        ESP32 -->|Tetens Formula| VPD_Calc["VPD Computation<br/>(kPa)"]
+        VPD_Calc -->|Closed-Loop Feedback| Actuators["Actuators<br/>(PTC Heater, Fan, Vent)"]
+        ESP32 -->|BLE / Serial Stream| Telemetry_Stream["Telemetry Stream<br/>(JSON)"]
     end
 
     %% Layer 2: Mobile & Edge Traceability
     subgraph Traceability_Layer["2. Manual & Edge Traceability Layer (Mobile App)"]
-        Scale["External Scale (0.1g)"] -->|Weigh Tray| User_Action["User Tray Inspection"]
-        QR_Code["Tray QR Code Tag"] -->|Scan via Smartphone| Mobile_App["Smartphone Client App"]
+        Scale["External Scale<br/>(0.1g / 1g)"] -->|Weigh Tray| User_Action["User Tray<br/>Inspection"]
+        QR_Code["Tray QR Code Tag"] -->|Scan via Smartphone| Mobile_App["Smartphone<br/>Client App"]
         User_Action --> Mobile_App
-        Mobile_App -->|Macro Snapshot| Edge_AI["On-Device Edge AI (OpenCV + Gemini Nano)"]
-        Edge_AI -->|Brown Ratio % & Mold Check| Inspection_Payload["Inspection Record Payload"]
+        Mobile_App -->|Macro Snapshot| Edge_AI["On-Device Edge AI<br/>(OpenCV + Gemini Nano)"]
+        Edge_AI -->|Brown Ratio % & Mold Check| Inspection_Payload["Inspection Record<br/>Payload"]
     end
 
     %% Layer 3: Data Ledger & Storage
     subgraph Storage_Layer["3. Data Ledger & Storage Layer"]
-        Telemetry_Stream -->|Time-Series Insert| SQLite_DB[("SQLite Database (curing_hub.db)")]
+        Telemetry_Stream -->|Time-Series Insert| SQLite_DB[("SQLite Database<br/>(curing_hub.db)")]
         Inspection_Payload -->|Record Insert| SQLite_DB
         SQLite_DB -->|Export Traceability| JSON_Schema["batch_schema.json"]
     end
@@ -36,10 +37,10 @@ graph TD
     %% Layer 4: Closed-Loop Optimization
     subgraph Optimization_Layer["4. Closed-Loop Recipe Optimization Engine"]
         Finished_Pods["Cured Vanilla Pods"] -->|HPLC Analysis| HPLC_Data["% Vanillin Content"]
-        Finished_Pods -->|Sensory Cupping| Sensory_Data["Sensory Radar Scores (Sweetness, Creamy, Floral, Woody)"]
+        Finished_Pods -->|Sensory Cupping| Sensory_Data["Sensory Radar Scores<br/>(Sweetness, Creamy, Floral, Woody)"]
         HPLC_Data --> Opt_Engine["sensory_optimization.py"]
         Sensory_Data --> Opt_Engine
-        Opt_Engine -->|Closed-Loop Feedback| Optimized_Recipe["Optimized Recipe (Temp, VPD, Time)"]
+        Opt_Engine -->|Closed-Loop Feedback| Optimized_Recipe["Optimized Recipe<br/>(Temp, VPD, Time)"]
         Optimized_Recipe -->|Apply Next Batch| ESP32
     end
 ```
@@ -49,39 +50,40 @@ graph TD
 ## 2. ลำดับการทำงานของข้อมูลแบบละเอียดยิบ (End-to-End Sequence Diagram)
 
 ```mermaid
+%%{init: { 'sequence': { 'actorFontSize': 20, 'messageFontSize': 18, 'noteFontSize': 18, 'labelFontSize': 18, 'boxTextMargin': 12 }, 'themeVariables': { 'fontSize': '18px', 'fontFamily': 'sans-serif' } } }%%
 sequenceDiagram
     autonumber
-    actor Operator as ผู้ใช้งาน (Farmer/Operator)
-    participant Scale as เครื่องชั่งดิจิทัลภายนอก
-    participant Phone as สมาร์ทโฟน / Mobile App
-    participant EdgeAI as On-device Edge AI
-    participant ESP32 as ESP32 Chamber Pod
-    participant DB as SQLite DB (curing_hub.db)
-    participant OptEngine as Sensory Optimization Engine
+    actor Operator as ผู้ใช้งาน<br/>(Operator)
+    participant Scale as เครื่องชั่งดิจิทัล<br/>ภายนอก
+    participant Phone as สมาร์ทโฟน /<br/>Mobile App
+    participant EdgeAI as On-device<br/>Edge AI
+    participant ESP32 as ESP32 Chamber<br/>Controller
+    participant DB as SQLite DB<br/>(curing_hub.db)
+    participant OptEngine as Sensory Optimization<br/>Engine
 
     rect rgb(240, 248, 255)
         note over ESP32, DB: 1. Hardware Closed-Loop Control & Telemetry Stream
-        ESP32->>ESP32: อ่านค่า SHT31 (Temp, RH) และคำนวณ VPD (Tetens Equation)
-        ESP32->>ESP32: ปรับตำแหน่ง Servo Vent (Deadband 0.9-1.1 kPa) & PTC Heater
+        ESP32->>ESP32: อ่านค่า SHT31 (Temp, RH)<br/>และคำนวณ VPD (Tetens Equation)
+        ESP32->>ESP32: ปรับตำแหน่ง Servo Vent (Deadband 0.9-1.1 kPa)<br/>และควบคุม PTC Heater
         ESP32->>DB: บันทึก Time-Series Telemetry (ทุก 5 วินาที)
     end
 
     rect rgb(255, 250, 240)
         note over Operator, EdgeAI: 2. Tray Inspection & Weight Tracking (External Scale + QR)
         Operator->>Scale: ชั่งน้ำหนักถาดฝักวานิลลาสด (g)
-        Operator->>Phone: สแกน QR Code หน้าถาด + ถ่ายภาพมาโคร
-        Phone->>EdgeAI: ส่งภาพถ่ายวิเคราะห์ด้วย OpenCV (Brown Ratio) + Gemini Nano (Mold Check)
+        Operator->>Phone: สแกน QR Code หน้าถาด<br/>+ ถ่ายภาพมาโคร
+        Phone->>EdgeAI: ส่งภาพวิเคราะห์ด้วย OpenCV (Brown Ratio)<br/>+ Gemini Nano (Mold Check)
         EdgeAI-->>Phone: คืนค่า Brown Ratio % และสถานะสปอร์เชื้อรา
-        Phone->>DB: บันทึกข้อมูลถาด (น้ำหนัก Mt, Brown Ratio %, URIs ภาพถ่าย)
+        Phone->>DB: บันทึกข้อมูลถาด (น้ำหนัก Mt,<br/>Brown Ratio %, URIs ภาพถ่าย)
     end
 
     rect rgb(245, 255, 250)
         note over DB, OptEngine: 3. Recipe Optimization & Quality Feedback Loop
-        DB->>DB: คำนวณอัตราส่วนมวลคงเหลือ (Mass Ratio = Mt / Initial_Mass)
+        DB->>DB: คำนวณอัตราส่วนมวลคงเหลือ<br/>(Mass Ratio = Mt / Initial_Mass)
         alt มวลคงเหลือ <= 27.0% (Exit Condition)
-            DB->>ESP32: จบ Active Lifecycle (เปลี่ยนสถานะเป็น READY_FOR_NEXT_BATCH)
-            Operator->>OptEngine: ป้อนผล HPLC (% Vanillin) & Sensory Radar Scores
-            OptEngine->>OptEngine: คำนวณปรับแต่งสูตรการบ่ม (Sweating T/Duration, Drying T/VPD)
+            DB->>ESP32: จบ Active Lifecycle<br/>(เปลี่ยนสถานะเป็น READY_FOR_NEXT_BATCH)
+            Operator->>OptEngine: ป้อนผล HPLC (% Vanillin)<br/>& Sensory Radar Scores
+            OptEngine->>OptEngine: คำนวณปรับแต่งสูตรการบ่ม<br/>(Sweating T/Duration, Drying T/VPD)
             OptEngine->>DB: บันทึกและส่งออก batch_schema.json
             OptEngine-->>ESP32: อัปเดต Recipe ใหม่สำหรับแบทช์ถัดไป
         end
